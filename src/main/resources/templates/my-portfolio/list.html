@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 포트폴리오</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .btn-create {
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-create:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+        .portfolio-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .portfolio-table th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .portfolio-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .portfolio-table tr:hover {
+            background: #f8fafc;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-published {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge-draft {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+        .btn-toggle {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-toggle:hover {
+            background: #7c3aed;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container" style="max-width: 1400px; margin: 0 auto; padding: 40px 20px;">
+    <!-- 헤더 -->
+    <div class="header-actions">
+        <div>
+            <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">
+                내 포트폴리오
+            </h1>
+            <p style="color: #64748b;">
+                <span th:text="${userName}"></span>님의 포트폴리오 관리
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="/" class="btn-sm" style="background: #94a3b8; color: white; display: inline-block; text-align: center; line-height: 1.5;">
+                메인으로
+            </a>
+            <a href="/my-portfolio/create" class="btn-create">
+                ➕ 새 포트폴리오 작성
+            </a>
+        </div>
+    </div>
+
+    <!-- 메시지 -->
+    <div th:if="${message}"
+         style="padding: 16px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px;">
+        <span th:text="${message}"></span>
+    </div>
+    <div th:if="${error}"
+         style="padding: 16px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin-bottom: 20px;">
+        <span th:text="${error}"></span>
+    </div>
+
+    <!-- 포트폴리오 목록 -->
+    <div th:if="${portfolios != null and !portfolios.isEmpty()}">
+        <table class="portfolio-table">
+            <thead>
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th>제목</th>
+                <th style="width: 120px;">카테고리</th>
+                <th style="width: 100px;">상태</th>
+                <th style="width: 100px;">조회수</th>
+                <th style="width: 100px;">좋아요</th>
+                <th style="width: 150px;">작성일</th>
+                <th style="width: 240px;">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="portfolio : ${portfolios}">
+                <td th:text="${portfolio.id}"></td>
+                <td>
+                    <strong th:text="${portfolio.title}"></strong>
+                </td>
+                <td th:text="${portfolio.category}"></td>
+                <td>
+                    <span class="badge"
+                          th:classappend="${portfolio.published} ? 'badge-published' : 'badge-draft'"
+                          th:text="${portfolio.published} ? '공개' : '비공개'">
+                    </span>
+                </td>
+                <td th:text="${portfolio.viewCount}"></td>
+                <td th:text="${portfolio.likeCount}"></td>
+                <td th:text="${#temporals.format(portfolio.createdAt, 'yyyy-MM-dd')}"></td>
+                <td>
+                    <div class="actions">
+                        <a th:href="@{/my-portfolio/edit/{id}(id=${portfolio.id})}"
+                           class="btn-sm btn-edit">
+                            수정
+                        </a>
+                        <form th:action="@{/my-portfolio/toggle/{id}(id=${portfolio.id})}"
+                              method="post" style="display: inline;">
+                            <button type="submit" class="btn-sm btn-toggle"
+                                    th:text="${portfolio.published} ? '비공개' : '공개'">
+                            </button>
+                        </form>
+                        <form th:action="@{/my-portfolio/delete/{id}(id=${portfolio.id})}"
+                              method="post" style="display: inline;">
+                            <button type="submit" class="btn-sm btn-delete"
+                                    onclick="return confirm('정말 삭제하시겠습니까?')">
+                                삭제
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 페이징 -->
+        <div style="display: flex; justify-content: center; margin-top: 30px; gap: 8px;" th:if="${totalPages > 1}">
+            <a th:if="${hasPrevious}"
+               th:href="@{/my-portfolio(page=${currentPage - 1})}"
+               style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 6px; text-decoration: none; color: #475569;">
+                ← 이전
+            </a>
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i != currentPage}"
+                   th:href="@{/my-portfolio(page=${i})}"
+                   th:text="${i + 1}"
+                   style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 6px; text-decoration: none; color: #475569;">
+                </a>
+                <span th:if="${i == currentPage}"
+                      th:text="${i + 1}"
+                      style="padding: 8px 16px; background: #2563eb; color: white; border-radius: 6px;">
+                </span>
+            </span>
+            <a th:if="${hasNext}"
+               th:href="@{/my-portfolio(page=${currentPage + 1})}"
+               style="padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 6px; text-decoration: none; color: #475569;">
+                다음 →
+            </a>
+        </div>
+    </div>
+
+    <!-- 빈 상태 -->
+    <div class="empty-state" th:if="${portfolios == null or portfolios.isEmpty()}">
+        <div class="empty-state-icon">📝</div>
+        <h3 style="font-size: 24px; margin-bottom: 12px;">아직 포트폴리오가 없습니다</h3>
+        <p style="color: #64748b; margin-bottom: 24px;">첫 번째 포트폴리오를 작성해보세요!</p>
+        <a href="/my-portfolio/create" class="btn-create" style="display: inline-block;">
+            ➕ 새 포트폴리오 작성
+        </a>
+    </div>
+</div>
+</body>
+</html>

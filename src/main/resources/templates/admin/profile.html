@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF 토큰 (Thymeleaf로 직접 삽입) -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>프로필 설정 - Portfolio Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #8b5cf6;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --bg: #ffffff;
+            --bg-alt: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --bg: #0f172a;
+            --bg-alt: #1e293b;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-alt);
+            color: var(--text);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="dark"] nav {
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1.25rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            position: fixed;
+            height: calc(100vh - 5rem);
+            overflow-y: auto;
+            top: 5rem;
+        }
+
+        .sidebar-title {
+            padding: 0 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-alt);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+            padding-left: calc(2rem - 3px);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .profile-role {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-control:disabled {
+            background: var(--bg-alt);
+            cursor: not-allowed;
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.4rem;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 0.75rem;
+        }
+
+        .password-strength-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .password-strength-fill {
+            height: 100%;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .password-strength-fill.weak {
+            width: 33%;
+            background: var(--danger);
+        }
+
+        .password-strength-fill.medium {
+            width: 66%;
+            background: var(--warning);
+        }
+
+        .password-strength-fill.strong {
+            width: 100%;
+            background: var(--success);
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+    <!-- CSRF 토큰 자동 처리 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // CSRF 토큰을 JavaScript 변수로 저장
+        var csrfToken = /*[[${_csrf.token}]]*/ '';
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+        console.log('✅ CSRF 토큰 로드됨:', csrfToken.substring(0, 20) + '...');
+
+        // 모든 폼 제출 시 CSRF 토큰 자동 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.method.toUpperCase() === 'POST') {
+                    let csrfInput = form.querySelector('input[name="_csrf"]');
+                    if (!csrfInput) {
+                        csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        form.appendChild(csrfInput);
+                    }
+                    csrfInput.value = csrfToken;
+                    console.log('✅ 폼에 CSRF 토큰 추가됨');
+                }
+            });
+        });
+
+        // fetch 요청용
+        if (window.fetch) {
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options = {}) {
+                if (options.method && options.method.toUpperCase() !== 'GET') {
+                    options.headers = options.headers || {};
+                    options.headers[csrfHeader] = csrfToken;
+                }
+                return originalFetch(url, options);
+            };
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<!-- Navigation -->
+<nav>
+    <div class="nav-container">
+        <a href="/" class="logo">박민제</a>
+        <ul class="nav-links">
+            <li><a href="/">홈</a></li>
+            <li><a href="/#portfolio">포트폴리오</a></li>
+            <li><a href="/about">소개</a></li>
+        </ul>
+        <div class="nav-right">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span>
+            </button>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-title">메뉴</div>
+        <ul class="nav-menu">
+            <a href="/admin" class="nav-item">
+                <span>📊</span>
+                <span>대시보드</span>
+            </a>
+            <a href="/admin/portfolio" class="nav-item">
+                <span>📁</span>
+                <span>포트폴리오 관리</span>
+            </a>
+            <a href="/admin/profile" class="nav-item active">
+                <span>👤</span>
+                <span>프로필 설정</span>
+            </a>
+            <a href="/admin/logs" class="nav-item">
+                <span>📝</span>
+                <span>활동 로그</span>
+            </a>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="header">
+            <h1>프로필 설정</h1>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <span>👤</span>
+                </div>
+                <div class="profile-info">
+                    <h2 th:text="${user.name ?: '관리자'}">관리자</h2>
+                    <p class="profile-role">시스템 관리자</p>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="alert alert-success" th:if="${message}">
+                <strong>✓</strong>
+                <span th:text="${message}">성공 메시지</span>
+            </div>
+
+            <div class="alert alert-error" th:if="${error}">
+                <strong>⚠️</strong>
+                <span th:text="${error}">에러 메시지</span>
+            </div>
+
+            <!-- Profile Form -->
+            <form th:action="@{/admin/profile/update}" method="post">
+                <div class="form-section">
+                    <h3 class="section-title">기본 정보</h3>
+
+                    <div class="form-group">
+                        <label for="username">아이디</label>
+                        <input type="text"
+                               id="username"
+                               th:value="${user.username}"
+                               name="username"
+                               class="form-control"
+                               disabled>
+                        <p class="form-hint">아이디는 변경할 수 없습니다</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">이름 <span class="required">*</span></label>
+                        <input type="text"
+                               id="name"
+                               th:value="${user.name}"
+                               name="name"
+                               class="form-control"
+                               placeholder="이름을 입력하세요"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <input type="email"
+                               id="email"
+                               th:value="${user.email}"
+                               name="email"
+                               class="form-control"
+                               placeholder="example@email.com">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                    <button type="submit" class="btn btn-primary">
+                        <span>✓</span>
+                        <span>저장하기</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Password Change Card -->
+        <div class="profile-card">
+            <form th:action="@{/admin/profile/change-password}" method="post">
+                <div class="form-section">
+                    <h3 class="section-title">비밀번호 변경</h3>
+
+                    <div class="form-group">
+                        <label for="currentPassword">현재 비밀번호 <span class="required">*</span></label>
+                        <input type="password"
+                               id="currentPassword"
+                               name="currentPassword"
+                               class="form-control"
+                               placeholder="현재 비밀번호를 입력하세요"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">새 비밀번호 <span class="required">*</span></label>
+                        <input type="password"
+                               id="newPassword"
+                               name="newPassword"
+                               class="form-control"
+                               placeholder="새 비밀번호를 입력하세요"
+                               required>
+                        <p class="form-hint">최소 8자 이상, 대소문자, 숫자, 특수문자 포함</p>
+
+                        <!-- Password Strength Indicator -->
+                        <div class="password-strength" id="passwordStrength" style="display: none;">
+                            <div class="password-strength-bar">
+                                <div class="password-strength-fill" id="strengthFill"></div>
+                            </div>
+                            <span class="password-strength-text" id="strengthText"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPasswordConfirm">비밀번호 확인 <span class="required">*</span></label>
+                        <input type="password"
+                               id="newPasswordConfirm"
+                               name="newPasswordConfirm"
+                               class="form-control"
+                               placeholder="비밀번호를 다시 입력하세요"
+                               required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                    <button type="submit" class="btn btn-primary">
+                        <span>🔒</span>
+                        <span>비밀번호 변경</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Theme Toggle
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', newTheme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    // Password Strength Checker
+    const newPasswordInput = document.getElementById('newPassword');
+    const strengthIndicator = document.getElementById('passwordStrength');
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthText = document.getElementById('strengthText');
+
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            const password = this.value;
+
+            if (password.length === 0) {
+                strengthIndicator.style.display = 'none';
+                return;
+            }
+
+            strengthIndicator.style.display = 'block';
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[@$!%*?&]/.test(password)) strength++;
+
+            strengthFill.className = 'password-strength-fill';
+
+            if (strength <= 2) {
+                strengthFill.classList.add('weak');
+                strengthText.textContent = '약함';
+                strengthText.style.color = 'var(--danger)';
+            } else if (strength <= 4) {
+                strengthFill.classList.add('medium');
+                strengthText.textContent = '보통';
+                strengthText.style.color = 'var(--warning)';
+            } else {
+                strengthFill.classList.add('strong');
+                strengthText.textContent = '강함';
+                strengthText.style.color = 'var(--success)';
+            }
+        });
+    }
+
+    // Password Match Checker
+    const confirmPasswordInput = document.getElementById('newPasswordConfirm');
+    if (confirmPasswordInput && newPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value.length === 0) return;
+
+            if (this.value === newPasswordInput.value) {
+                this.style.borderColor = 'var(--success)';
+            } else {
+                this.style.borderColor = 'var(--danger)';
+            }
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+/* ========================================
+   Error Pages Styles
+   404, 403, 500 등 에러 페이지 전용 스타일
+   ======================================== */
+
+/* Error Page Container */
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Error Background Gradients */
+.error-page.error-404 {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.error-page.error-403 {
+    background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+}
+
+.error-page.error-500 {
+    background: linear-gradient(135deg, var(--warning) 0%, #e67e22 100%);
+}
+
+/* Animated Background Pattern */
+.error-page::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveBackground 20s linear infinite;
+}
+
+/* Error Container */
+.error-container {
+    background: var(--bg-card);
+    padding: 3rem;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Error Code */
+.error-code {
+    font-size: 8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.error-page.error-404 .error-code {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.error-page.error-403 .error-code {
+    background: linear-gradient(135deg, var(--danger), #c0392b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.error-page.error-500 .error-code {
+    background: linear-gradient(135deg, var(--warning), #e67e22);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Error Icon */
+.error-icon {
+    font-size: 6rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    animation: bounce 2s infinite;
+}
+
+/* Error Title */
+.error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+/* Error Message */
+.error-message {
+    color: var(--text-light);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+/* Error Details Box */
+.error-details {
+    background: var(--bg-alt);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+    text-align: left;
+    font-size: 0.9rem;
+    color: var(--text-light);
+    border-left: 4px solid var(--primary);
+}
+
+.error-details strong {
+    color: var(--text);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.error-details code {
+    background: var(--bg);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+/* Error Actions */
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.error-btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 14px var(--shadow);
+}
+
+.error-btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.error-btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-md);
+}
+
+.error-btn-secondary {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 2px solid var(--border);
+}
+
+.error-btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Error 404 Specific */
+.error-404 .error-icon::before {
+    content: '🔍';
+}
+
+/* Error 403 Specific */
+.error-403 .error-icon::before {
+    content: '🔒';
+}
+
+/* Error 500 Specific */
+.error-500 .error-icon::before {
+    content: '⚠️';
+}
+
+/* Suggested Actions */
+.error-suggestions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.error-suggestions h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+
+.suggestions-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.suggestions-list li {
+    padding: 0.75rem 0;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.suggestions-list li::before {
+    content: '→';
+    color: var(--primary);
+    font-weight: bold;
+}
+
+/* Error Contact */
+.error-contact {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: var(--bg-alt);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.error-contact a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Loading Spinner for Error Recovery */
+.error-recovery {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--info-light);
+    border-radius: 8px;
+    color: var(--info);
+    font-size: 0.9rem;
+    display: none;
+}
+
+.error-recovery.show {
+    display: block;
+}
+
+.error-spinner {
+    border: 3px solid rgba(37, 99, 235, 0.2);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 0.5rem;
+}
+
+/* Back Link with Animation */
+.error-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.error-back-link:hover {
+    color: var(--primary);
+    gap: 0.75rem;
+}
+
+.error-back-link::before {
+    content: '←';
+    transition: transform 0.3s;
+}
+
+.error-back-link:hover::before {
+    transform: translateX(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .error-page {
+        padding: 1rem;
+    }
+
+    .error-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .error-code {
+        font-size: 6rem;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+
+    .error-message {
+        font-size: 1rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .error-code {
+        font-size: 4.5rem;
+    }
+
+    .error-icon {
+        font-size: 3rem;
+    }
+
+    .error-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .error-page::before,
+    .error-actions,
+    .error-back-link {
+        display: none !important;
+    }
+
+    .error-page {
+        background: white !important;
+    }
+
+    .error-container {
+        box-shadow: none !important;
+    }
+}

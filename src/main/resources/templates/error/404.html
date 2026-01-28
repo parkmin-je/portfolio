@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - 페이지를 찾을 수 없습니다</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+</head>
+<body>
+<div class="error-page error-404">
+    <div class="error-container fade-in-up">
+        <div class="error-code">404</div>
+        <div class="error-icon"></div>
+        <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+        <p class="error-message">
+            요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.<br>
+            주소를 다시 확인해주세요.
+        </p>
+
+        <!-- Suggestions -->
+        <div class="error-suggestions">
+            <h3>다음을 시도해보세요</h3>
+            <ul class="suggestions-list">
+                <li>URL 주소가 정확한지 확인하기</li>
+                <li>브라우저 뒤로가기 버튼 사용하기</li>
+                <li>메인 페이지에서 다시 시작하기</li>
+                <li>검색 기능을 사용하여 원하는 페이지 찾기</li>
+            </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="error-actions">
+            <a href="/" class="error-btn error-btn-primary">
+                🏠 홈으로 돌아가기
+            </a>
+            <a href="/about" class="error-btn error-btn-secondary">
+                ℹ️ 소개 페이지
+            </a>
+        </div>
+
+        <!-- Contact -->
+        <div class="error-contact">
+            문제가 지속되면 <a href="mailto:admin@example.com">관리자에게 문의</a>해주세요.
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-redirect countdown (optional)
+    let countdown = 10;
+    const countdownElement = document.createElement('div');
+    countdownElement.className = 'error-recovery';
+    countdownElement.innerHTML = `
+        <div class="error-spinner"></div>
+        <span id="countdown">${countdown}</span>초 후 메인 페이지로 이동합니다...
+        <button onclick="cancelRedirect()" style="margin-left: 1rem; padding: 0.25rem 0.75rem; border-radius: 4px; border: 1px solid var(--border); background: white; cursor: pointer;">취소</button>
+    `;
+
+    // Uncomment to enable auto-redirect
+    // document.querySelector('.error-container').appendChild(countdownElement);
+    // countdownElement.classList.add('show');
+
+    let redirectTimer;
+
+    function startRedirectCountdown() {
+        redirectTimer = setInterval(() => {
+            countdown--;
+            document.getElementById('countdown').textContent = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(redirectTimer);
+                window.location.href = '/';
+            }
+        }, 1000);
+    }
+
+    function cancelRedirect() {
+        clearInterval(redirectTimer);
+        countdownElement.remove();
+    }
+
+    // Uncomment to start countdown
+    // startRedirectCountdown();
+</script>
+</body>
+</html>

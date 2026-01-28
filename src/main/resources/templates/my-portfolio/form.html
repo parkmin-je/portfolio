@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF 토큰 (Thymeleaf로 직접 삽입) -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${portfolio != null and portfolio.id != null ? '포트폴리오 수정' : '포트폴리오 추가'}">포트폴리오 추가</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #8b5cf6;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --bg: #ffffff;
+            --bg-alt: #f8fafc;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --bg: #0f172a;
+            --bg-alt: #1e293b;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-alt);
+            color: var(--text);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="dark"] nav {
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1.25rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Form Container */
+        .form-container {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.4rem;
+        }
+
+        /* File Upload */
+        .file-upload {
+            position: relative;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-light);
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .file-preview {
+            margin-top: 1rem;
+            max-width: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-alt);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <!-- CSRF 토큰 자동 처리 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var csrfToken = /*[[${_csrf.token}]]*/ '';
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.method.toUpperCase() === 'POST') {
+                    let csrfInput = form.querySelector('input[name="_csrf"]');
+                    if (!csrfInput) {
+                        csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        form.appendChild(csrfInput);
+                    }
+                    csrfInput.value = csrfToken;
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</head>
+<body>
+<!-- Navigation -->
+<nav>
+    <div class="nav-container">
+        <a href="/" class="logo">박민제</a>
+        <ul class="nav-links">
+            <li><a href="/">홈</a></li>
+            <li><a href="/#portfolio">포트폴리오</a></li>
+            <li><a href="/about">소개</a></li>
+        </ul>
+        <div class="nav-right">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">🌙</span>
+            </button>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="header">
+        <h1 th:text="${portfolio != null and portfolio.id != null ? '포트폴리오 수정' : '포트폴리오 추가'}">포트폴리오 추가</h1>
+    </div>
+
+    <div class="form-container">
+        <!-- Alert Messages -->
+        <div class="alert alert-error" th:if="${error}">
+            <span th:text="${error}">에러 메시지</span>
+        </div>
+
+        <!-- Form -->
+        <form th:action="${portfolio != null and portfolio.id != null ? '/my-portfolio/edit/' + portfolio.id : '/my-portfolio/create'}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="title">제목 <span class="required">*</span></label>
+                <input type="text"
+                       id="title"
+                       name="title"
+                       th:value="${portfolio != null ? portfolio.title : ''}"
+                       class="form-control"
+                       placeholder="프로젝트 제목을 입력하세요"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">카테고리 <span class="required">*</span></label>
+                <select id="category" name="category" class="form-control" required>
+                    <option value="">카테고리를 선택하세요</option>
+                    <option value="웹 개발" th:selected="${portfolio != null && portfolio.category == '웹 개발'}">웹 개발</option>
+                    <option value="앱 개발" th:selected="${portfolio != null && portfolio.category == '앱 개발'}">앱 개발</option>
+                    <option value="디자인" th:selected="${portfolio != null && portfolio.category == '디자인'}">디자인</option>
+                    <option value="데이터 분석" th:selected="${portfolio != null && portfolio.category == '데이터 분석'}">데이터 분석</option>
+                    <option value="AI/ML" th:selected="${portfolio != null && portfolio.category == 'AI/ML'}">AI/ML</option>
+                    <option value="기타" th:selected="${portfolio != null && portfolio.category == '기타'}">기타</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="summary">요약</label>
+                <input type="text"
+                       id="summary"
+                       name="summary"
+                       th:value="${portfolio != null ? portfolio.summary : ''}"
+                       class="form-control"
+                       placeholder="프로젝트 한 줄 요약 (선택사항)">
+                <p class="form-hint">목록 페이지에 표시될 짧은 설명</p>
+            </div>
+
+            <div class="form-group">
+                <label for="description">설명 <span class="required">*</span></label>
+                <textarea id="description"
+                          name="description"
+                          class="form-control"
+                          placeholder="프로젝트에 대한 자세한 설명을 입력하세요"
+                          required
+                          th:text="${portfolio != null ? portfolio.description : ''}"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="technologies">사용 기술 <span class="required">*</span></label>
+                <input type="text"
+                       id="technologies"
+                       name="technologies"
+                       th:value="${portfolio != null ? portfolio.technologies : ''}"
+                       class="form-control"
+                       placeholder="예: React, Node.js, MongoDB"
+                       required>
+                <p class="form-hint">쉼표(,)로 구분하여 입력하세요</p>
+            </div>
+
+            <div class="form-group">
+                <label for="projectUrl">프로젝트 URL</label>
+                <input type="url"
+                       id="projectUrl"
+                       name="projectUrl"
+                       th:value="${portfolio != null ? portfolio.projectUrl : ''}"
+                       class="form-control"
+                       placeholder="https://example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="githubUrl">GitHub URL</label>
+                <input type="url"
+                       id="githubUrl"
+                       name="githubUrl"
+                       th:value="${portfolio != null ? portfolio.githubUrl : ''}"
+                       class="form-control"
+                       placeholder="https://github.com/username/repo">
+            </div>
+
+            <div class="form-group">
+                <label for="imageFile">
+                    대표 이미지 <span class="required" th:if="${portfolio == null}">*</span>
+                </label>
+                <div class="file-upload">
+                    <input type="file"
+                           id="imageFile"
+                           name="imageFile"
+                           accept="image/*"
+                           onchange="previewImage(event)"
+                           th:required="${portfolio == null}">
+                    <label for="imageFile" class="file-upload-label">
+                        <span>📁</span>
+                        <span>이미지 선택하기</span>
+                    </label>
+                    <p class="form-hint">JPG, PNG 파일 (최대 10MB)</p>
+                </div>
+                <div id="imagePreview" class="file-preview" style="display: none;">
+                    <img id="previewImg" src="" alt="미리보기">
+                </div>
+                <div th:if="${portfolio != null and portfolio.imageUrl != null}" class="file-preview">
+                    <img th:src="${portfolio.imageUrl}" alt="현재 이미지">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span th:text="${portfolio != null and portfolio.id != null ? '✓ 수정하기' : '➕ 추가하기'}">추가하기</span>
+                </button>
+                <a href="/my-portfolio" class="btn btn-secondary">
+                    <span>← 취소</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+    // Theme Toggle
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', newTheme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    // Image Preview
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                const img = document.getElementById('previewImg');
+                img.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.project'
+version = '0.0.1-SNAPSHOT'
+description = 'Portfolio Management System - 보안 강화 버전'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // ========================================
+    // Spring Boot Starters
+    // ========================================
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // ========================================
+    // Spring Security
+    // ========================================
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+    // ========================================
+    // Database
+    // ========================================
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.2'
+    // HikariCP (기본 포함되지만 명시)
+    implementation 'com.zaxxer:HikariCP'
+
+    // ========================================
+    // Lombok
+    // ========================================
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // ========================================
+    // 보안 강화 라이브러리
+    // ========================================
+    // XSS 방어 - OWASP Java HTML Sanitizer
+    implementation 'com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20220608.1'
+
+    // 파일 타입 검증 - Apache Tika
+    implementation 'org.apache.tika:tika-core:2.9.1'
+
+    // 🆕 Excel 생성 - Apache POI
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+
+    // Rate Limiting (선택사항)
+    // implementation 'com.bucket4j:bucket4j-core:8.2.0'
+
+    // ========================================
+    // 모니터링 및 메트릭
+    // ========================================
+    // Micrometer Prometheus (메트릭 수집)
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // ========================================
+    // 개발 도구
+    // ========================================
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // ========================================
+    // 테스트
+    // ========================================
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // AssertJ (더 나은 assertion)
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+
+    // Mockito (모킹)
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+
+    // 테스트 결과 출력
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+
+    // 테스트 커버리지 최소 기준 (선택사항)
+    // finalizedBy jacocoTestReport
+}
+
+// ========================================
+// 빌드 최적화
+// ========================================
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+// ========================================
+// JAR 빌드 설정
+// ========================================
+tasks.named('bootJar') {
+    archiveFileName = "${project.name}-${project.version}.jar"
+
+    // 실행 가능한 JAR로 빌드
+    launchScript()
+}
+
+// ========================================
+// 코드 품질 검사 (선택사항)
+// ========================================
+// Checkstyle, SpotBugs 등 추가 가능
+
+// ========================================
+// 의존성 버전 관리
+// ========================================
+ext {
+    set('springSecurityVersion', '6.2.0')
+    set('lombokVersion', '1.18.30')
+    set('poiVersion', '5.2.5')
+}

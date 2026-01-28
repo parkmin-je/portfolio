@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF 토큰 (Thymeleaf로 직접 삽입) -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>포트폴리오 상세보기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .actions form {
+            display: inline;
+        }
+
+        /* 포트폴리오 상세 */
+        .portfolio-detail {
+            margin-top: 2rem;
+        }
+
+        .portfolio-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-content {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .link-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: transform 0.3s;
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+    <!-- CSRF 토큰 자동 처리 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // CSRF 토큰을 JavaScript 변수로 저장
+        var csrfToken = /*[[${_csrf.token}]]*/ '';
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+        console.log('✅ CSRF 토큰 로드됨:', csrfToken.substring(0, 20) + '...');
+
+        // 모든 폼 제출 시 CSRF 토큰 자동 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('submit', function(e) {
+                const form = e.target;
+                if (form.method.toUpperCase() === 'POST') {
+                    let csrfInput = form.querySelector('input[name="_csrf"]');
+                    if (!csrfInput) {
+                        csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = '_csrf';
+                        form.appendChild(csrfInput);
+                    }
+                    csrfInput.value = csrfToken;
+                    console.log('✅ 폼에 CSRF 토큰 추가됨');
+                }
+            });
+        });
+
+        // fetch 요청용
+        if (window.fetch) {
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options = {}) {
+                if (options.method && options.method.toUpperCase() !== 'GET') {
+                    options.headers = options.headers || {};
+                    options.headers[csrfHeader] = csrfToken;
+                }
+                return originalFetch(url, options);
+            };
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>👁️ 포트폴리오 상세보기</h1>
+        <div class="actions">
+            <a href="/admin/portfolio" class="btn btn-secondary">← 목록으로</a>
+            <a th:href="@{/admin/portfolio/edit/{id}(id=${portfolio.id})}" class="btn">✏️ 수정</a>
+            <form th:action="@{/admin/portfolio/delete/{id}(id=${portfolio.id})}" method="post"
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <button type="submit" class="btn btn-danger">🗑️ 삭제</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="portfolio-detail">
+        <!-- 이미지 -->
+        <img th:if="${portfolio.imageUrl != null and !portfolio.imageUrl.isEmpty()}"
+             th:src="${portfolio.imageUrl}"
+             th:alt="${portfolio.title}"
+             class="portfolio-image">
+
+        <!-- 제목 -->
+        <div class="detail-section">
+            <h2 th:text="${portfolio.title}" style="font-size: 2rem; color: #2c3e50; margin-bottom: 1rem;">
+                프로젝트 제목
+            </h2>
+            <span class="category-badge" th:text="${portfolio.category}">카테고리</span>
+        </div>
+
+        <!-- 설명 -->
+        <div class="detail-section">
+            <div class="detail-label">📝 프로젝트 설명</div>
+            <div class="detail-content" th:text="${portfolio.description}">
+                프로젝트 설명이 여기에 표시됩니다.
+            </div>
+        </div>
+
+        <!-- 프로젝트 링크 -->
+        <div class="detail-section" th:if="${portfolio.projectUrl != null and !portfolio.projectUrl.isEmpty()}">
+            <div class="detail-label">🔗 프로젝트 링크</div>
+            <a th:href="${portfolio.projectUrl}" class="link-button" target="_blank">
+                🚀 프로젝트 바로가기
+            </a>
+        </div>
+
+        <!-- 정보 그리드 -->
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">등록일</span>
+                <span class="info-value" th:text="${#temporals.format(portfolio.createdAt, 'yyyy년 MM월 dd일 HH:mm')}">
+                        2024년 01월 01일 12:00
+                    </span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">포트폴리오 ID</span>
+                <span class="info-value" th:text="${portfolio.id}">1</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

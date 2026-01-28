@@ -1,0 +1,123 @@
+<!--
+    SEO 메타태그 조각 파일
+    사용법: <head th:insert="fragments/seo :: meta-tags(title='제목', description='설명')"></head>
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- 기본 SEO 메타태그 -->
+<head th:fragment="meta-tags(title, description, image, url)">
+    <!-- 기본 메타태그 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - 박민제 포트폴리오'">박민제 포트폴리오</title>
+    <meta name="description" th:content="${description}">
+    <meta name="keywords" content="박민제, 포트폴리오, 개발자, Spring Boot, Java, 웹 개발, 백엔드">
+    <meta name="author" content="박민제">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" th:href="${url}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" th:content="${title}">
+    <meta property="og:description" th:content="${description}">
+    <meta property="og:url" th:content="${url}">
+    <meta property="og:image" th:content="${image}">
+    <meta property="og:site_name" content="박민제 포트폴리오">
+    <meta property="og:locale" content="ko_KR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${title}">
+    <meta name="twitter:description" th:content="${description}">
+    <meta name="twitter:image" th:content="${image}">
+</head>
+
+<!-- 메인 페이지용 -->
+<head th:fragment="home-meta">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>박민제 - 크리에이티브 개발자 포트폴리오</title>
+    <meta name="description" content="박민제의 개발 포트폴리오. Spring Boot, Java, Web 개발 프로젝트를 소개합니다.">
+    <meta name="keywords" content="박민제, 포트폴리오, 개발자, Spring Boot, Java, 웹 개발, 백엔드, 탁구 토너먼트">
+    <meta name="author" content="박민제">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://questionmark.kr.com/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="박민제 - 크리에이티브 개발자 포트폴리오">
+    <meta property="og:description" content="박민제의 개발 포트폴리오. Spring Boot, Java, Web 개발 프로젝트를 소개합니다.">
+    <meta property="og:url" content="https://questionmark.kr.com/">
+    <meta property="og:image" content="https://questionmark.kr.com/images/og-image.jpg">
+    <meta property="og:site_name" content="박민제 포트폴리오">
+    <meta property="og:locale" content="ko_KR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="박민제 - 크리에이티브 개발자 포트폴리오">
+    <meta name="twitter:description" content="박민제의 개발 포트폴리오. Spring Boot, Java, Web 개발 프로젝트를 소개합니다.">
+    <meta name="twitter:image" content="https://questionmark.kr.com/images/og-image.jpg">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "박민제",
+            "url": "https://questionmark.kr.com",
+            "jobTitle": "Software Developer",
+            "description": "Spring Boot, Java 전문 백엔드 개발자",
+            "knowsAbout": ["Java", "Spring Boot", "Web Development", "Backend Development", "Database Design"]
+        }
+    </script>
+</head>
+
+<!-- 포트폴리오 상세 페이지용 (동적) -->
+<head th:fragment="portfolio-meta">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${portfolio.title} + ' - 박민제 포트폴리오'">포트폴리오</title>
+    <meta name="description" th:content="${portfolio.summary ?: portfolio.description}">
+    <meta name="keywords" th:content="'박민제, 포트폴리오, ' + ${portfolio.category} + ', ' + ${portfolio.technologies}">
+    <meta name="author" content="박민제">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" th:href="'https://questionmark.kr.com/portfolio/' + ${portfolio.id}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" th:content="${portfolio.title}">
+    <meta property="og:description" th:content="${portfolio.summary ?: portfolio.description}">
+    <meta property="og:url" th:content="'https://questionmark.kr.com/portfolio/' + ${portfolio.id}">
+    <meta property="og:image" th:content="${portfolio.imageUrl}">
+    <meta property="og:site_name" content="박민제 포트폴리오">
+    <meta property="article:published_time" th:content="${portfolio.createdAt}">
+    <meta property="article:modified_time" th:content="${portfolio.updatedAt}">
+    <meta property="article:tag" th:content="${portfolio.category}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${portfolio.title}">
+    <meta name="twitter:description" th:content="${portfolio.summary ?: portfolio.description}">
+    <meta name="twitter:image" th:content="${portfolio.imageUrl}">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            "name": /*[[${portfolio.title}]]*/ "Project",
+            "description": /*[[${portfolio.description}]]*/ "Description",
+            "image": /*[[${portfolio.imageUrl}]]*/ "",
+            "creator": {
+                "@type": "Person",
+                "name": "박민제"
+            },
+            "datePublished": /*[[${portfolio.createdAt}]]*/ "",
+            "dateModified": /*[[${portfolio.updatedAt}]]*/ "",
+            "keywords": /*[[${portfolio.technologies}]]*/ ""
+        }
+    </script>
+</head>
+
+</html>
