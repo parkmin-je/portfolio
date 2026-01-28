@@ -124,9 +124,6 @@ tasks.withType(JavaCompile) {
 // ========================================
 tasks.named('bootJar') {
     archiveFileName = "${project.name}-${project.version}.jar"
-
-    // 실행 가능한 JAR로 빌드
-    launchScript()
 }
 
 // ========================================
