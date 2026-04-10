@@ -35,3 +35,17 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### AI / Claude ###
+.claude/
+.ai/
+
+### Logs (runtime-generated) ###
+logs/
+*.log
+
+### Environment ###
+.env
+.env.local
+application-local.yml
+application-local.properties
